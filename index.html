@@ -71,7 +71,7 @@
             $.ajax({
                 url: `http://${server}/api/${key}/groups/${group}/action`,
                 type: "PUT",
-                data: `{"scene":${scene},"on":true}`
+                data: `{"scene":"${scene}","on":true}`
             }).done(function (response) {
                 console.log(response);
                 notification("success", "Success.");
