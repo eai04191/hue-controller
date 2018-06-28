@@ -31,3 +31,7 @@ This problem is known and can be addressed by using an HTTPS relay proxy. But it
 ## License
 
 This project is licensed under the MIT License.
+
+## Credits
+
+[Light by Vectors Market from the Noun Project](https://thenounproject.com/term/light/280983/)
