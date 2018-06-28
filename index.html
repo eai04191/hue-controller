@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hue Controller</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+</head>
+
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">
+                Hue Controller
+            </h1>
+
+            <div class="columns" id="controller">Connecting...</div>
+            <div class="columns" id="notification"></div>
+        </div>
+    </section>
+
+    <script defer src="https://use.fontawesome.com/releases/v5.0.0/js/all.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+        let server = getParam("server");
+        let key = getParam("key");
+        let group = getParam("group");
+        let scene = getParam("scene");
+
+        function getParam(key) {
+            let regExpString = key + "=(.*?)(&|$)";
+            let regExp = new RegExp(regExpString);
+            if (window.location.search.match(regExp)) {
+                return window.location.search.match(regExp)[1];
+            } else {
+                return null;
+            }
+        }
+
+        const off_html =
+            `<div class="column">
+                <a class="button is-dark is-medium is-fullwidth" id="off"><i class="fas fa-lightbulb"></i>OFF</a>
+            </div>`;
+        const on_html =
+            `<div class="column">
+                <a class="button is-medium is-fullwidth" id="on"><i class="far fa-lightbulb"></i>ON</a>
+            </div>`;
+
+        function notification(state, message) {
+            let html = `<div class="column"><div class="notification is-fullwidth is-${state}">${message}</div></div>`;
+            $("#notification").html(html);
+        }
+
+        $(document).ready(function () {
+            $.ajax({
+                url: `http://${server}/api/${key}/groups/${group}`,
+                type: "GET"
+            }).done(function (response) {
+                if (response['state']['any_on']) {
+                    $("#controller").html(off_html);
+                } else {
+                    $("#controller").html(on_html);
+                }
+            }).fail(function () {
+                notification("warning", "Connection failed.");
+            });
+        });
+
+        $(document).on("click", "#on", function () {
+            $.ajax({
+                url: `http://${server}/api/${key}/groups/${group}/action`,
+                type: "PUT",
+                data: `{"scene":${scene},"on":true}`
+            }).done(function (response) {
+                console.log(response);
+                notification("success", "Success.");
+                $("#controller").html(off_html);
+            }).fail(function () {
+                notification("warning", "Connection failed.");
+            });
+        });
+
+        $(document).on("click", "#off", function () {
+            $.ajax({
+                url: `http://${server}/api/${key}/groups/${group}/action`,
+                type: "PUT",
+                data: `{"on":false}`,
+            }).done(function (response) {
+                console.log(response);
+                notification("success", "Success.");
+                $("#controller").html(on_html);
+            }).fail(function () {
+                notification("warning", "Connection failed.");
+            });
+        });
+    </script>
+</body>
+
+</html>
